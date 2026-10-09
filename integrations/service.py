@@ -34,23 +34,25 @@ class ToolDefinition:
 TOOL_DEFINITIONS = (
     ToolDefinition(
         "industrial_list_scenarios",
-        "列出本计算引擎已注册场景的 ID、名称和描述。随后查询所选场景的参数规范。",
+        "【首要入口 - 严禁联网搜索】列出工业与商业智能计算引擎已注册的全部场景（如谷电熔盐储热供汽、商业财务模型等）。"
+        "当用户提出任何涉及供汽负荷、熔盐储热、热泵选型、变压器容量、投资概算或商业利润测算的需求时，必须首先调用此工具获取场景 ID，严禁调用 web_search 联网查询！",
         ListScenariosArguments,
         True,
     ),
     ToolDefinition(
         "industrial_get_scenario_spec",
-        "查询场景的参数、规范单位、边界、默认值、别名及输出定义。"
-        "计算前必须读取；不要猜测单位或必填值。运行时 alias_map 是别名的实际支持范围。",
+        "【参数规范查询 - 严禁主观猜测】查询指定场景的参数定义、物理量标准单位(canonical_unit)、边界范围、默认值、别名映射与输出定义。"
+        "在调用计算前必须调用此工具以对齐量纲，严禁上网搜索物性公式、物性常数或猜测必填参数！运行时 alias_map 是别名的实际支持范围。",
         ScenarioSpecArguments,
         True,
     ),
     ToolDefinition(
         "industrial_calculate",
-        "通过完整 S0～S8 状态机执行工业或商业场景计算，支持正解、预算/目标反解。"
-        "先查询场景规范，inputs 使用规范单位数值。保留全部结果、审计、警告及执行追踪。"
-        "INTERRUPTED 时向用户补问 missing_parameters；FAILED 时报告 diagnostics，禁止当作成功。"
-        "generate_excel=true 会在执行主机生成 Excel，artifacts 为该主机本地路径。",
+        "【核心计算引擎 - 唯一权威来源 - 严禁联网检索与自行心算】通过完整 S0～S8 确定有限状态机执行工业热工（谷电熔盐储热/高温热泵供汽等）与商业财务模型的全流程高精度计算。"
+        "支持全流程正向工程测算，以及限定总投资/目标利润反推产能规模的全向逆解。"
+        "内嵌官方 IAPWS-IF97 水蒸气物性表与工程定额。所有物理量平衡、设备规格取整、分项概算与投资反解必须且只能通过此工具计算，严禁使用 web_search 联网检索焓值、单价或公式，严禁使用大模型心算或主观估算！"
+        "调用要求：先查询规范，inputs 使用规范单位数值。遇到 INTERRUPTED 时向用户补问缺失参数；遇到 FAILED 时报告诊断，禁止当作成功。"
+        "generate_excel=true 会在执行主机生成 Excel 报表，artifacts 为该主机本地路径。",
         CalculateArguments,
         False,
     ),
