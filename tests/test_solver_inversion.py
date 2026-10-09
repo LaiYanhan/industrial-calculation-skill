@@ -31,28 +31,23 @@ class TestSolverInversion(unittest.TestCase):
 
     def test_pipeline_inverse_steam_flow_from_investment(self):
         """
-        测试全流程黑盒穿透反解:
-        已知总动态投资约 22650 万元，反推所需最大供汽能力是否收敛至 100 t/h 附近
+        测试全流程预算反解:
+        已知总动态投资 22650 万元，反推所需最大供汽能力是否收敛至 100 t/h 附近
         """
-        def pipeline_eval(flow: float) -> float:
-            res = self.skill.calculate(
-                scenario_id="molten_salt_steam",
-                inputs={"蒸汽压力": 1.5, "蒸汽温度": 200, "蒸汽流量": flow}
-            )
-            return res.get("results", {}).get("dynamic_investment_wanke", 0.0)
-
-        target_inv = 22650.0
-        flow_found, iters = NumericInverter.bisect(
-            forward_eval_fn=pipeline_eval,
-            target_y=target_inv,
-            x_min=10.0,
-            x_max=300.0,
-            tol=50.0  # 允许阶梯单价引起的离散小跳跃容差
+        res = self.skill.calculate(
+            scenario_id="molten_salt_steam",
+            inputs={
+                "steam_pressure_mpa": 1.5,
+                "steam_temperature_c": 200.0,
+                "target_dynamic_investment_wanke": 22650.0
+            },
+            targets=["steam_flow_th"],
+            options={"solution_mode": "INVERSE"}
         )
+        self.assertEqual(res["status"], "SUCCESS")
+        flow_found = res["results"]["steam_flow_th"]
         self.assertIsNotNone(flow_found)
-        # 验证反解产汽量在 [95, 105] 范围内
         self.assertTrue(90.0 <= flow_found <= 110.0)
-
 
 if __name__ == "__main__":
     unittest.main()
