@@ -2,7 +2,7 @@
 
 本项目是一个高可靠、强类型、模块化的**工业与商业智能计算 Skill**。该 Skill 能够作为核心引擎被上层大 Skill 调度，或直接供工程师交互使用。
 
-系统支持从长文本、文档与表格中智能提取参数并完成单位对齐，支持类似 `输入输出.xlsx` 的多层级设备选型与工程概算计算，支持 $a+b+c=d$ 类方程与经济总投资的全向反向逆解，并具备防止代码堆砌史山的独立子 Agent 维护生命周期。
+系统支持从长文本、文档与表格中智能提取参数并完成单位对齐，支持类似 `输入输出.xlsx` 的多层级设备选型与工程概算计算，支持**任意多元线性与非线性代数方程组、以及包含离散阶梯折扣的复杂工程与经济模型全向反向逆解**（支持给定任意已知参数组合反求目标未知量），并具备防止代码堆砌史山的独立子 Agent 维护生命周期。
 
 ---
 
@@ -14,8 +14,8 @@
 -  **[虚拟环境与依赖配置手册 (docs/ENVIRONMENT_SETUP.md)](./docs/ENVIRONMENT_SETUP.md)**：专属独立虚拟环境 `.venv` 激活与无缝调度指南。
 -  **[通用状态机流水线协议 (docs/STATE_MACHINE_SPEC.md)](./docs/STATE_MACHINE_SPEC.md)**：S0~S8 各状态详细前置守卫、动作与后置不变量契约。
 -  **[声明式场景包配置规范 (docs/SCENARIO_SCHEMA_SPEC.md)](./docs/SCENARIO_SCHEMA_SPEC.md)**：新增或修改公式时的标准目录与文件格式规范。
-- 🔌 **[外部接口调用参考 (docs/API_REFERENCE.md)](./docs/API_REFERENCE.md)**：上层大 Skill 调用与错误码参考。
-- ⚠️ **[Excel计算差异与运行时警告规范 (docs/EXCEL_DIFFERENCES_AND_WARNINGS.md)](./docs/EXCEL_DIFFERENCES_AND_WARNINGS.md)**：6项原表差异详细定位、简略描述与超限报错规范。
+-  **[外部接口调用参考 (docs/API_REFERENCE.md)](./docs/API_REFERENCE.md)**：上层大 Skill 调用与错误码参考。
+-  **[Excel计算差异与运行时警告规范 (docs/EXCEL_DIFFERENCES_AND_WARNINGS.md)](./docs/EXCEL_DIFFERENCES_AND_WARNINGS.md)**：6项原表差异详细定位、简略描述与超限报错规范。
 ---
 
 ## 目录结构规划
@@ -24,10 +24,10 @@
 skills/calculate/
 ├── design.md                          # 全局架构与详细设计说明书
 ├── README.md                          # 本说明文档
-├── requirements.txt                  # 项目核心依赖清单
+├── requirements.txt                   # 项目核心依赖清单
 ├── .venv/                             # [已预装] 项目专属隔离虚拟环境
 ├── skill_api.py                       # 供上层大Skill调用的标准入口类
-├── 输入输出.xlsx                      # 工业熔盐储热工程原始标杆文件
+├── 输入输出.xlsx                       # 工业熔盐储热工程原始标杆文件
 │
 ├── docs/                              # 核心规范与准则库 (只读区)
 │   ├── ENVIRONMENT_SETUP.md           # 虚拟环境配置与激活指南
@@ -78,7 +78,7 @@ skills/calculate/
 │   └── test_molten_salt_business.py   # 熔盐工程全流程业务数值深度对齐测试
 │
 └── exports/                           # 运行时动态生成的 Excel 报表落盘区
-
+```
 ---
 
 ## 核心开发红线摘要

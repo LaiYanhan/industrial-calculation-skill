@@ -1,6 +1,6 @@
 """
 符号代数求解器抽象 (Symbolic Equation Engine).
-负责维护符号等式集合，自动分析方程拓扑，支持 a+b+c=d 任意已知量反解未知量。
+负责维护符号等式集合，自动分析方程拓扑，支持任意多元代数方程组已知任意变量组合反求未知量。
 """
 
 from typing import Any, Callable, Dict, List, Optional
