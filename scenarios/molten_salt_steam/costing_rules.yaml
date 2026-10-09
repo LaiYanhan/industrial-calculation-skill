@@ -1,0 +1,39 @@
+# 造价与概算联动费率表 (对齐 输入输出.xlsx 造价 & 工程概算)
+
+equipment_pricing:
+  heater:
+    rule: "STEPPED"
+    tiers:
+      - upper_mw: 100.0
+        unit_price_wanke: 40.0   # 40万/MW
+      - upper_mw: 200.0
+        unit_price_wanke: 38.0
+      - upper_mw: 9999.0
+        unit_price_wanke: 35.0
+
+  storage_system:
+    rule: "STEPPED"
+    tiers:
+      - upper_mass_t: 10000.0
+        unit_price_wanke: 1.2    # 1.2万/吨
+      - upper_mass_t: 20000.0
+        unit_price_wanke: 1.1
+      - upper_mass_t: 999999.0
+        unit_price_wanke: 1.0
+
+  heat_exchange:
+    rule: "STEPPED"
+    tiers:
+      - upper_mw: 250.0
+        unit_price_wanke: 35.0   # 35万/MW
+      - upper_mw: 350.0
+        unit_price_wanke: 32.0
+      - upper_mw: 9999.0
+        unit_price_wanke: 30.0
+
+  electrical:
+    fixed_unit_price_wanke: 12.0 # 12万/MVA
+
+economic_ratios:
+  equipment_to_static_ratio: 0.80      # 设备投资占静态投资 80% 反算
+  interest_during_construction: 1000.0 # 建设期贷款利息 (万元)

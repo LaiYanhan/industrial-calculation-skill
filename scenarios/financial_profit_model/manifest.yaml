@@ -1,0 +1,63 @@
+scenario_id: "financial_profit_model"
+version: "1.0.0"
+name: "企业商业财务利润测算模型"
+description: "根据产品单价、销量、固定与可变成本、折旧及所得税率测算营业收入、EBITDA与税后净利润"
+
+parameters:
+  unit_price_cny:
+    type: "float"
+    canonical_unit: "元"
+    aliases: ["产品单价", "销售单价", "售价", "单价"]
+    description: "每件产品销售单价"
+    bounds: [0.01, 1000000.0]
+    required: true
+
+  sales_volume:
+    type: "float"
+    canonical_unit: "件"
+    aliases: ["产品销量", "年销量", "销量", "销售件数"]
+    description: "年化销售总量"
+    bounds: [1.0, 100000000.0]
+    required: true
+
+  variable_cost_per_unit_cny:
+    type: "float"
+    canonical_unit: "元"
+    aliases: ["单位可变成本", "单件成本", "BOM成本"]
+    bounds: [0.0, 1000000.0]
+    default: 50.0
+
+  fixed_operating_costs_wanke:
+    type: "float"
+    canonical_unit: "万元"
+    aliases: ["固定运营成本", "日常固定支出", "固定开支"]
+    bounds: [0.0, 100000.0]
+    default: 200.0
+
+  depreciation_wanke:
+    type: "float"
+    canonical_unit: "万元"
+    aliases: ["折旧摊销", "固定资产折旧"]
+    bounds: [0.0, 50000.0]
+    default: 50.0
+
+  interest_expenses_wanke:
+    type: "float"
+    canonical_unit: "万元"
+    aliases: ["利息支出", "财务费用"]
+    bounds: [0.0, 50000.0]
+    default: 20.0
+
+  corporate_tax_rate:
+    type: "float"
+    canonical_unit: "/"
+    aliases: ["企业所得税率", "税率"]
+    bounds: [0.0, 0.5]
+    default: 0.25
+
+  target_net_profit_wanke:
+    type: "float"
+    canonical_unit: "万元"
+    aliases: ["目标净利润", "期望利润"]
+    bounds: [-10000.0, 100000.0]
+    is_target_candidate: true

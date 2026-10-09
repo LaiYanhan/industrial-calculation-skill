@@ -1,0 +1,34 @@
+[
+  {
+    "case_id": "financial_forward_standard_case",
+    "description": "正向利润核算: 单价100元, 销量10万件, 算净利润",
+    "mode": "FORWARD",
+    "inputs": {
+      "unit_price_cny": 100.0,
+      "sales_volume": 100000.0,
+      "variable_cost_per_unit_cny": 50.0,
+      "fixed_operating_costs_wanke": 200.0,
+      "depreciation_wanke": 50.0,
+      "interest_expenses_wanke": 20.0,
+      "corporate_tax_rate": 0.25
+    },
+    "expected": {
+      "revenue_wanke": 1000.0,
+      "gross_profit_wanke": 500.0,
+      "ebitda_wanke": 300.0,
+      "net_profit_wanke": 172.5
+    },
+    "tolerance": 0.01
+  },
+  {
+    "case_id": "financial_inverse_target_profit",
+    "description": "反向利润反求: 目标净利润 172.5 万元, 反推所需销量",
+    "mode": "INVERSE",
+    "target_param": "sales_volume",
+    "given": {
+      "unit_price_cny": 100.0,
+      "target_net_profit_wanke": 172.5
+    },
+    "expected_range": [99000.0, 101000.0]
+  }
+]

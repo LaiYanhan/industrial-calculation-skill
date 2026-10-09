@@ -1,0 +1,85 @@
+scenario_id: "molten_salt_steam"
+version: "1.0.0"
+name: "谷电熔盐储热供蒸汽计算场景"
+description: "根据蒸汽压力/温度/流量与谷电时长，计算电加热/热泵功率、熔盐量、设备选型与工程概算"
+
+parameters:
+  steam_pressure_mpa:
+    type: "float"
+    canonical_unit: "MPa"
+    aliases: ["蒸汽压力", "主汽压", "压力", "供汽压力"]
+    description: "供汽端蒸汽压力"
+    bounds: [0.1, 25.0]
+    default: 1.5
+    required: true
+
+  steam_temperature_c:
+    type: "float"
+    canonical_unit: "degC"
+    aliases: ["蒸汽温度", "供汽温度", "主汽温"]
+    description: "供汽过热/饱和蒸汽温度"
+    bounds: [100.0, 600.0]
+    default: 200.0
+    required: true
+
+  steam_flow_th:
+    type: "float"
+    canonical_unit: "t/h"
+    aliases: ["蒸汽流量", "产汽量", "供汽能力", "每小时吨数"]
+    description: "小时供汽流量"
+    bounds: [0.1, 5000.0]
+    default: 100.0
+    required: true
+
+  feedwater_pressure_mpa:
+    type: "float"
+    canonical_unit: "MPa"
+    aliases: ["给水压力", "进水压力"]
+    bounds: [0.05, 25.0]
+    default: 0.1
+
+  feedwater_temperature_c:
+    type: "float"
+    canonical_unit: "degC"
+    aliases: ["给水温度", "进水温度"]
+    bounds: [5.0, 300.0]
+    default: 20.0
+
+  steam_supply_hours_h:
+    type: "float"
+    canonical_unit: "h"
+    aliases: ["供汽时长", "供热小时数"]
+    bounds: [1.0, 24.0]
+    default: 8.0
+
+  valley_power_hours_h:
+    type: "float"
+    canonical_unit: "h"
+    aliases: ["谷电时长", "消纳谷电时长", "电加热工作时长"]
+    bounds: [1.0, 24.0]
+    default: 8.0
+
+  operating_days_d:
+    type: "float"
+    canonical_unit: "d"
+    aliases: ["运行天数", "年运行天数"]
+    bounds: [1.0, 365.0]
+    default: 330.0
+
+  heater_efficiency:
+    type: "float"
+    canonical_unit: "/"
+    aliases: ["电热效率", "电加热器效率"]
+    default: 0.985
+
+  heat_exchange_efficiency:
+    type: "float"
+    canonical_unit: "/"
+    aliases: ["换热效率"]
+    default: 0.99
+
+  storage_efficiency:
+    type: "float"
+    canonical_unit: "/"
+    aliases: ["储热效率"]
+    default: 0.99

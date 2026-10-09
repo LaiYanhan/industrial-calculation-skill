@@ -1,0 +1,38 @@
+[
+  {
+    "case_id": "molten_salt_steam_forward_standard",
+    "description": "输入输出.xlsx 标杆正向工况: 100t/h, 1.5MPa, 200℃, 8h供汽/谷电",
+    "mode": "FORWARD",
+    "inputs": {
+      "steam_pressure_mpa": 1.5,
+      "steam_temperature_c": 200.0,
+      "steam_flow_th": 100.0,
+      "feedwater_pressure_mpa": 0.1,
+      "feedwater_temperature_c": 20.0,
+      "steam_supply_hours_h": 8.0,
+      "valley_power_hours_h": 8.0
+    },
+    "expected": {
+      "heater_power_nominal_mw": 80.0,
+      "storage_capacity_mwh": 620.0,
+      "molten_salt_mass_t": 8650.0,
+      "transformer_capacity_mva": 90.0,
+      "equipment_investment_wanke": 17320.0,
+      "static_investment_wanke": 21650.0,
+      "dynamic_investment_wanke": 22650.0
+    },
+    "tolerance": 0.02
+  },
+  {
+    "case_id": "molten_salt_steam_inverse_budget",
+    "description": "逆向反解工况: 限定动态总投资 22650 万元，反推最大产汽能力",
+    "mode": "INVERSE",
+    "target_param": "steam_flow_th",
+    "given": {
+      "steam_pressure_mpa": 1.5,
+      "steam_temperature_c": 200.0,
+      "target_dynamic_investment_wanke": 22650.0
+    },
+    "expected_range": [95.0, 105.0]
+  }
+]
