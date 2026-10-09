@@ -31,7 +31,7 @@ class ParameterValue(ToolArguments):
 
 class CalculateArguments(ScenarioSpecArguments):
     inputs: list[ParameterValue] = Field(
-        description="已知参数列表。必须严格使用场景规范定义的数值，严禁自行联网搜索或主观估算；缺参会返回 INTERRUPTED。"
+        description="已知参数列表。能够调用工具获得的数据绝对不能使用搜索工具；不能得到的数据需先获得人类批准再决定是否搜索。缺参会返回 INTERRUPTED。"
     )
     targets: list[NonEmptyString] | None = Field(
         default=None, description="反解目标规范名列表；常规正解填 null。"
