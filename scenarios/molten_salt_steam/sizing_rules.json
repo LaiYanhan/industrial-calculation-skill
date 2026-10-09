@@ -1,12 +1,55 @@
 {
+  "source": "输入输出.xlsx: 设备型号、选型。选型公式优先于型号备注；并列输出单机组合。",
+  "roundoff_tolerance": 1e-10,
   "electric_heater": {
-    "step_mw": 5.0,
-    "roundup_to": 10.0,
-    "min_mw": 5.0,
-    "max_mw": 120.0
+    "roundup_mw": 10,
+    "module_step_mw": 5,
+    "module_max_mw": 30
+  },
+  "heat_pump": {
+    "roundup_mw": 10,
+    "module_step_mw": 5,
+    "module_max_mw": 80
+  },
+  "storage": {
+    "roundup_mwh": 10
+  },
+  "salt": {
+    "roundup_t": 10
+  },
+  "sgs": {
+    "roundup_mw": 1,
+    "catalog_step_mw": 5
   },
   "transformer": {
-    "standards_mva": [6.3, 8.0, 10.0, 12.5, 16.0, 20.0, 25.0, 31.5, 40.0, 50.0, 63.0, 90.0, 120.0],
-    "power_factor": 1.0
+    "catalog_standards_mva": [
+      6.3,
+      8,
+      10,
+      12.5,
+      16,
+      20,
+      25,
+      31.5,
+      40,
+      50,
+      63,
+      90,
+      120
+    ],
+    "standards_mva": [
+      16,
+      20,
+      25,
+      31.5,
+      40,
+      50,
+      63,
+      90,
+      120
+    ],
+    "heater_power_factor": 1,
+    "heat_pump_power_factor": 0.85,
+    "heat_pump_demand_step_mva": 1
   }
 }

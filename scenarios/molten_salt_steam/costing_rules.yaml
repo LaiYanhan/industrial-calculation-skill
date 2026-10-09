@@ -1,39 +1,65 @@
-# 造价与概算联动费率表 (对齐 输入输出.xlsx 造价 & 工程概算)
-
+# 万元口径；复现输入输出.xlsx，不代表现行市场报价或税法。
+source: "输入输出.xlsx: 造价 D3:D16、工程概算 C3:F50"
 equipment_pricing:
   heater:
-    rule: "STEPPED"
-    tiers:
-      - upper_mw: 100.0
-        unit_price_wanke: 40.0   # 40万/MW
-      - upper_mw: 200.0
-        unit_price_wanke: 38.0
-      - upper_mw: 9999.0
-        unit_price_wanke: 35.0
-
+    unit: 万元/MW
+    tiers: # 上限不含端点；null 为无穷上界
+      - {upper: 100, unit_price: 40}
+      - {upper: 200, unit_price: 38}
+      - {upper: null, unit_price: 35}
   storage_system:
-    rule: "STEPPED"
+    unit: 万元/t
     tiers:
-      - upper_mass_t: 10000.0
-        unit_price_wanke: 1.2    # 1.2万/吨
-      - upper_mass_t: 20000.0
-        unit_price_wanke: 1.1
-      - upper_mass_t: 999999.0
-        unit_price_wanke: 1.0
-
+      - {upper: 10000, unit_price: 1.2}
+      - {upper: 20000, unit_price: 1.1}
+      - {upper: null, unit_price: 1.0}
   heat_exchange:
-    rule: "STEPPED"
+    unit: 万元/MW
     tiers:
-      - upper_mw: 250.0
-        unit_price_wanke: 35.0   # 35万/MW
-      - upper_mw: 350.0
-        unit_price_wanke: 32.0
-      - upper_mw: 9999.0
-        unit_price_wanke: 30.0
-
-  electrical:
-    fixed_unit_price_wanke: 12.0 # 12万/MVA
-
+      - {upper: 250, unit_price: 35}
+      - {upper: 350, unit_price: 32}
+      - {upper: null, unit_price: 30}
+  heat_pump:
+    power_threshold_mw: 150
+    source_temperature_threshold_c: 50
+    small_cold_wanke_per_mw: 94
+    small_warm_wanke_per_mw: 80
+    large_cold_wanke_per_mw: 85
+    large_warm_wanke_per_mw: 73
+    heat_exchange_wanke_per_mw: 35
+  electrical_wanke_per_mva: 12
 economic_ratios:
-  equipment_to_static_ratio: 0.80      # 设备投资占静态投资 80% 反算
-  interest_during_construction: 1000.0 # 建设期贷款利息 (万元)
+  equipment_to_static_ratio: 0.8
+# 建筑/设备/安装三列分量，归一化分摊系统总额。
+allocations:
+  storage: [1155, 20088, 2473] # 分母 26133-2417；设备 22505-2417
+  sgs: [1773, 4349, 1230]
+  heater: [0, 1, 0]
+  heat_pump: [0.14, 1, 0.07]
+  thermal: [2608, 7812, 3079]
+  treatment: [1351, 1616, 201]
+  supply: [1969, 3704, 1973]
+  electrical: [1120, 6187, 4979]
+  auxiliary: [0.75, 0.10, 0.15]
+fees:
+  owner_management_rate: 0.0707
+  tender_rate: 0.0035
+  supervision_rate: 0.0155
+  material_construction_weight: 0.4
+  material_rate: 0.003
+  consulting_rate: 0.0042
+  insurance_rate: 0.001
+  equipment_technical_rate: 0.0015
+  evaluation_rate: 0.0015
+  standards_rate: 0.001
+  furniture_rate: 0.005
+  training_rate: 0.0362
+  training_factor: 0.3
+  reserve_rate: 0.03
+# 价内抵扣：金额/(1+denominator_rate)*deduction_rate。
+# F23 的 2% 分母与 1.5% 分子按原表分别保存。
+vat:
+  construction: {denominator_rate: 0.09, deduction_rate: 0.09}
+  equipment: {denominator_rate: 0.13, deduction_rate: 0.13}
+  installation: {denominator_rate: 0.09, deduction_rate: 0.09}
+  other: {denominator_rate: 0.02, deduction_rate: 0.015}

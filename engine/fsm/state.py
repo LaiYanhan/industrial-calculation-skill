@@ -58,7 +58,13 @@ class BaseState(ABC):
             return token
 
         # 2. 执行核心动作
-        action_res = self.execute_action(context)
+        try:
+            action_res = self.execute_action(context)
+        except (ValueError, ArithmeticError, KeyError, RuntimeError, OSError, ImportError) as exc:
+            # 无效输入、物性越界或交付失败均应留下失败令牌，禁止越过本状态。
+            action_res = ActionResult(
+                status="FAILED", error_message=str(exc),
+                diagnostics={"error_type": type(exc).__name__, "error": str(exc)})
         if action_res.status != "PASSED":
             duration_ms = (time.time() - start_time) * 1000
             token = StateToken(

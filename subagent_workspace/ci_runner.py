@@ -4,6 +4,7 @@
 """
 
 import json
+import math
 import os
 import sys
 
@@ -48,10 +49,12 @@ def run_benchmark_suite(scenario_id: str) -> bool:
                 continue
 
             actual_results = res.get("results", {})
-            case_passed = True
+            case_passed = bool(expected)
+            if not expected:
+                print("  -> [FAILED] 正向用例缺少断言")
             for exp_k, exp_v in expected.items():
                 act_v = actual_results.get(exp_k)
-                if act_v is None:
+                if not isinstance(act_v, (int, float)) or not math.isfinite(act_v):
                     print(f"  -> [FAILED] 结果中缺失预期字段 '{exp_k}'")
                     case_passed = False
                 else:
@@ -66,14 +69,46 @@ def run_benchmark_suite(scenario_id: str) -> bool:
                 all_passed = False
 
         elif mode == "INVERSE":
-            # 简化逆解检查示例
-            print("  -> [PASSED] 逆解区间约束检查通过!")
+            target_param = case.get("target_param")
+            expected_range = case.get("expected_range")
+            if not target_param or not expected_range or len(expected_range) != 2:
+                print("  -> [FAILED] 逆解用例缺少目标或区间断言")
+                all_passed = False
+                continue
+            given = case.get("given", {})
+            res = skill.calculate(scenario_id, given, targets=[target_param],
+                                  options={"solution_mode": "INVERSE"})
+            actual = res.get("results", {}).get(target_param)
+            if (res.get("status") != "SUCCESS" or not isinstance(actual, (int, float))
+                    or not math.isfinite(actual) or not expected_range[0] <= actual <= expected_range[1]):
+                print(f"  -> [FAILED] 逆解结果不满足区间: {res}")
+                all_passed = False
+                continue
+            # 将反解值重新送入完整正向流水线，确认真的满足给定预算。
+            forward_inputs = {key: value for key, value in given.items() if not key.startswith("target_")}
+            forward_inputs[target_param] = actual
+            forward = skill.calculate(scenario_id, forward_inputs, options={"solution_mode": "FORWARD"})
+            case_passed = forward.get("status") == "SUCCESS"
+            for key, budget in given.items():
+                if key.startswith("target_"):
+                    achieved = forward.get("results", {}).get(key.removeprefix("target_"))
+                    if (not isinstance(achieved, (int, float)) or not math.isfinite(achieved)
+                            or achieved > budget + case.get("budget_tolerance", 1e-7)):
+                        case_passed = False
+            if case_passed:
+                print(f"  -> [PASSED] 实际反解 {target_param}={actual:.9f}，正向预算复核通过!")
+            else:
+                print("  -> [FAILED] 逆解值正向预算复核未通过")
+                all_passed = False
+        else:
+            print(f"  -> [FAILED] 不支持的用例模式: {mode}")
+            all_passed = False
 
     print(f"\n-------------------------------------------------------")
     if all_passed:
-        print(f"🎉 场景 [{scenario_id}] 所有测试用例 100% 通过，准入发布!")
+        print(f"[PASSED] 场景 [{scenario_id}] 所有测试用例 100% 通过，准入发布!")
     else:
-        print(f"❌ 场景 [{scenario_id}] 存在未通过用例，禁止发布!")
+        print(f"[FAILED] 场景 [{scenario_id}] 存在未通过用例，禁止发布!")
     print(f"-------------------------------------------------------\n")
     return all_passed
 

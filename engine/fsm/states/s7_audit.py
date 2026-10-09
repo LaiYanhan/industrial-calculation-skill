@@ -34,9 +34,8 @@ class SanityAuditState(BaseState):
         context.audit_warnings = warnings
         context.audit_passed = (len(violations) == 0)
 
-        audit_level = context.options.get("audit_level", "STRICT")
-
-        if violations and audit_level == "STRICT":
+        # violations 是致命违规，任何审计级别都不能将其降级为可交付警告。
+        if violations:
             return ActionResult(
                 status="FAILED",
                 error_message="常理审计未通过，存在违背领域规则的致命违规",
@@ -51,6 +50,6 @@ class SanityAuditState(BaseState):
 
     def verify_invariants(self, context: ExecutionContext) -> Tuple[bool, List[str]]:
         unverified = []
-        if not context.audit_passed and context.options.get("audit_level", "STRICT") == "STRICT":
+        if not context.audit_passed:
             unverified.append("audit_passed_strictly")
         return (len(unverified) == 0, unverified)

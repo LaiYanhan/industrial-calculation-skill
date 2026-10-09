@@ -29,8 +29,9 @@ class TopologyRoutingState(BaseState):
         mode = context.options.get("solution_mode", "AUTO")
 
         if mode == "AUTO":
-            # 简易推断规则：用户要求反推前端参数且给定了末端约束
-            if targets and any(t in ["steam_flow_th", "sales_volume", "variable_cost"] for t in targets):
+            if self.scenario_spec and hasattr(self.scenario_spec, "infer_solution_mode"):
+                context.solution_mode = self.scenario_spec.infer_solution_mode(context.canonical_params, targets)
+            elif targets and any(t in getattr(self.scenario_spec, "required_params", []) for t in targets):
                 context.solution_mode = "INVERSE"
             else:
                 context.solution_mode = "FORWARD"

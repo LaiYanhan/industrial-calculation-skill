@@ -1,85 +1,546 @@
-scenario_id: "molten_salt_steam"
-version: "1.0.0"
-name: "谷电熔盐储热供蒸汽计算场景"
-description: "根据蒸汽压力/温度/流量与谷电时长，计算电加热/热泵功率、熔盐量、设备选型与工程概算"
-
+scenario_id: molten_salt_steam
+version: 1.1.0
+name: 谷电熔盐储热供蒸汽计算场景
+description: 根据蒸汽压力/温度/流量与谷电时长，计算电加热/热泵功率、熔盐量、设备选型与工程概算
 parameters:
   steam_pressure_mpa:
-    type: "float"
-    canonical_unit: "MPa"
-    aliases: ["蒸汽压力", "主汽压", "压力", "供汽压力"]
-    description: "供汽端蒸汽压力"
-    bounds: [0.1, 25.0]
-    default: 1.5
+    type: float
+    canonical_unit: MPa
+    aliases:
+    - 蒸汽压力
+    - 主汽压
+    - 压力
+    - 供汽压力
+    description: 供汽端蒸汽压力
+    bounds:
+    - 0.1
+    - 25.0
     required: true
-
   steam_temperature_c:
-    type: "float"
-    canonical_unit: "degC"
-    aliases: ["蒸汽温度", "供汽温度", "主汽温"]
-    description: "供汽过热/饱和蒸汽温度"
-    bounds: [100.0, 600.0]
-    default: 200.0
+    type: float
+    canonical_unit: degC
+    aliases:
+    - 蒸汽温度
+    - 供汽温度
+    - 主汽温
+    - 温度
+    description: 供汽过热/饱和蒸汽温度
+    bounds:
+    - 100.0
+    - 600.0
     required: true
-
   steam_flow_th:
-    type: "float"
-    canonical_unit: "t/h"
-    aliases: ["蒸汽流量", "产汽量", "供汽能力", "每小时吨数"]
-    description: "小时供汽流量"
-    bounds: [0.1, 5000.0]
-    default: 100.0
+    type: float
+    canonical_unit: t/h
+    aliases:
+    - 蒸汽流量
+    - 产汽量
+    - 供汽能力
+    - 每小时吨数
+    - 流量
+    description: 小时供汽流量
+    bounds:
+    - 0.1
+    - 5000.0
     required: true
-
   feedwater_pressure_mpa:
-    type: "float"
-    canonical_unit: "MPa"
-    aliases: ["给水压力", "进水压力"]
-    bounds: [0.05, 25.0]
+    type: float
+    canonical_unit: MPa
+    aliases:
+    - 给水压力
+    - 进水压力
+    bounds:
+    - 0.05
+    - 25.0
     default: 0.1
-
   feedwater_temperature_c:
-    type: "float"
-    canonical_unit: "degC"
-    aliases: ["给水温度", "进水温度"]
-    bounds: [5.0, 300.0]
+    type: float
+    canonical_unit: degC
+    aliases:
+    - 给水温度
+    - 进水温度
+    bounds:
+    - 5.0
+    - 300.0
     default: 20.0
-
   steam_supply_hours_h:
-    type: "float"
-    canonical_unit: "h"
-    aliases: ["供汽时长", "供热小时数"]
-    bounds: [1.0, 24.0]
+    type: float
+    canonical_unit: h
+    aliases:
+    - 供汽时长
+    - 供热小时数
+    bounds:
+    - 0.01
+    - 24.0
     default: 8.0
-
   valley_power_hours_h:
-    type: "float"
-    canonical_unit: "h"
-    aliases: ["谷电时长", "消纳谷电时长", "电加热工作时长"]
-    bounds: [1.0, 24.0]
+    type: float
+    canonical_unit: h
+    aliases:
+    - 谷电时长
+    - 消纳谷电时长
+    - 电加热工作时长
+    bounds:
+    - 0.01
+    - 24.0
     default: 8.0
-
   operating_days_d:
-    type: "float"
-    canonical_unit: "d"
-    aliases: ["运行天数", "年运行天数"]
-    bounds: [1.0, 365.0]
+    type: float
+    canonical_unit: d
+    aliases:
+    - 运行天数
+    - 年运行天数
+    bounds:
+    - 1.0
+    - 365.0
     default: 330.0
-
   heater_efficiency:
-    type: "float"
-    canonical_unit: "/"
-    aliases: ["电热效率", "电加热器效率"]
+    type: float
+    canonical_unit: /
+    aliases:
+    - 电热效率
+    - 电加热器效率
     default: 0.985
-
+    bounds:
+    - 1.0e-06
+    - 1.0
   heat_exchange_efficiency:
-    type: "float"
-    canonical_unit: "/"
-    aliases: ["换热效率"]
+    type: float
+    canonical_unit: /
+    aliases:
+    - 换热效率
     default: 0.99
-
+    bounds:
+    - 1.0e-06
+    - 1.0
   storage_efficiency:
-    type: "float"
-    canonical_unit: "/"
-    aliases: ["储热效率"]
+    type: float
+    canonical_unit: /
+    aliases:
+    - 储热效率
     default: 0.99
+    bounds:
+    - 1.0e-06
+    - 1.0
+  waste_heat_temperature_c:
+    type: float
+    canonical_unit: degC
+    default: 30.0
+    bounds:
+    - -50
+    - 200
+    aliases:
+    - 余热温度
+  heat_pump_cop:
+    type: float
+    canonical_unit: /
+    default: 1.3
+    bounds:
+    - 1
+    - 20
+    aliases:
+    - 热泵cop
+    - 热泵COP
+  salt_type_id:
+    type: float
+    canonical_unit: /
+    default: 0
+    bounds:
+    - 0
+    - 1
+    aliases:
+    - 熔盐类型编号
+    enum:
+    - 0
+    - 1
+    description: 0=HITEC；1=太阳盐。温区默认值见 salt_profiles。
+  salt_mass_margin:
+    type: float
+    canonical_unit: /
+    default: 1.1
+    bounds:
+    - 1
+    - 3
+    aliases:
+    - 熔盐裕量
+  minimum_pinch_c:
+    type: float
+    canonical_unit: degC
+    default: 5
+    bounds:
+    - 0
+    - 100
+    aliases:
+    - 最小夹点温差
+  construction_interest_wanke:
+    type: float
+    canonical_unit: 万元
+    default: 1000
+    bounds:
+    - 0
+    - 1000000
+    aliases:
+    - 建设期利息
+  thermal_system_wanke:
+    type: float
+    canonical_unit: 万元
+    default: 0
+    bounds:
+    - 0
+    - 1000000
+    aliases: []
+  water_treatment_wanke:
+    type: float
+    canonical_unit: 万元
+    default: 0
+    bounds:
+    - 0
+    - 1000000
+    aliases: []
+  water_supply_wanke:
+    type: float
+    canonical_unit: 万元
+    default: 0
+    bounds:
+    - 0
+    - 1000000
+    aliases: []
+  site_clearance_wanke:
+    type: float
+    canonical_unit: 万元
+    default: 100
+    bounds:
+    - 0
+    - 1000000
+    aliases: []
+  preliminary_work_wanke:
+    type: float
+    canonical_unit: 万元
+    default: 30
+    bounds:
+    - 0
+    - 1000000
+    aliases: []
+  design_wanke:
+    type: float
+    canonical_unit: 万元
+    default: 400
+    bounds:
+    - 0
+    - 1000000
+    aliases: []
+  design_review_wanke:
+    type: float
+    canonical_unit: 万元
+    default: 15
+    bounds:
+    - 0
+    - 1000000
+    aliases: []
+  inspection_wanke:
+    type: float
+    canonical_unit: 万元
+    default: 25
+    bounds:
+    - 0
+    - 1000000
+    aliases: []
+  commissioning_wanke:
+    type: float
+    canonical_unit: 万元
+    default: 120
+    bounds:
+    - 0
+    - 1000000
+    aliases: []
+  vehicles_wanke:
+    type: float
+    canonical_unit: 万元
+    default: 70
+    bounds:
+    - 0
+    - 1000000
+    aliases: []
+  salt_temperature_high_c:
+    type: float
+    canonical_unit: degC
+    bounds:
+    - 190
+    - 565
+  salt_temperature_low_c:
+    type: float
+    canonical_unit: degC
+    bounds:
+    - 190
+    - 565
+  target_dynamic_investment_wanke:
+    type: float
+    canonical_unit: 万元
+    bounds:
+    - 0
+    - 10000000
+    is_target_candidate: true
+    aliases:
+    - 总投资
+    - 动态投资
+    - total_investment_wanke
+    - dynamic_investment_wanke
+  target_heat_pump_dynamic_investment_wanke:
+    type: float
+    canonical_unit: 万元
+    bounds:
+    - 0
+    - 10000000
+    is_target_candidate: true
+  steam_quality:
+    type: float
+    canonical_unit: /
+    bounds:
+    - 0
+    - 1
+    description: 仅在饱和温度下显式提供干度；供汽审计要求为1。
+  feedwater_quality:
+    type: float
+    canonical_unit: /
+    bounds:
+    - 0
+    - 1
+    description: 仅在饱和温度下显式提供干度；给水审计要求为0。
+source: 输入输出.xlsx，7 张工作表；详见场景 README 的口径差异
+salt_profiles:
+  '0':
+    material: hitec
+    label: HITEC熔盐
+    high_c: 390.0
+    low_c: 190.0
+  '1':
+    material: solar_salt
+    label: 太阳盐
+    high_c: 565.0
+    low_c: 290.0
+numerics:
+  balance_tolerance_wanke: 1.0e-07
+  audit_relative_tolerance: 1.0e-09
+outputs:
+  steam_enthalpy_kj_kg:
+    type: float
+    canonical_unit: kJ/kg
+  feedwater_enthalpy_kj_kg:
+    type: float
+    canonical_unit: kJ/kg
+  salt_cp_kj_kg_k:
+    type: float
+    canonical_unit: kJ/(kg*K)
+  salt_material:
+    type: string
+    canonical_unit: /
+  salt_properties_high:
+    type: object
+    canonical_unit: mixed
+    fields: &id001
+      density_kg_m3: kg/m3
+      specific_heat_kj_kg_k: kJ/(kg*K)
+      thermal_conductivity_kcal_m_h_k: kcal/(m*h*degC)
+      viscosity_kg_s_m2: (kg*s)/m2 (source label)
+  salt_properties_low:
+    type: object
+    canonical_unit: mixed
+    fields: *id001
+  salt_density_high_kg_m3:
+    type: float
+    canonical_unit: kg/m3
+  salt_density_low_kg_m3:
+    type: float
+    canonical_unit: kg/m3
+  sgs_power_mw:
+    type: float
+    canonical_unit: MW
+  heat_produced_mwh:
+    type: float
+    canonical_unit: MWh
+  heater_power_theoretical_mw:
+    type: float
+    canonical_unit: MW
+  storage_capacity_theoretical_mwh:
+    type: float
+    canonical_unit: MWh
+  molten_salt_mass_theoretical_t:
+    type: float
+    canonical_unit: t
+  heat_pump_thermal_power_mw:
+    type: float
+    canonical_unit: MW
+  heat_pump_electric_power_mw:
+    type: float
+    canonical_unit: MW
+  annual_electricity_wan_kwh:
+    type: float
+    canonical_unit: 万kWh
+  heat_pump_annual_electricity_wan_kwh:
+    type: float
+    canonical_unit: 万kWh
+  annual_steam_wan_t:
+    type: float
+    canonical_unit: 万t
+  workbook_heater_annual_steam_wan_t:
+    type: float
+    canonical_unit: 万t
+  heater_power_nominal_mw:
+    type: float
+    canonical_unit: MW
+  heat_pump_power_nominal_mw:
+    type: float
+    canonical_unit: MW
+  storage_capacity_mwh:
+    type: float
+    canonical_unit: MWh
+  molten_salt_mass_t:
+    type: float
+    canonical_unit: t
+  sgs_power_nominal_mw:
+    type: float
+    canonical_unit: MW
+  sgs_catalog_power_mw:
+    type: float
+    canonical_unit: MW
+  transformer_capacity_mva:
+    type: float
+    canonical_unit: MVA
+  heat_pump_transformer_capacity_mva:
+    type: float
+    canonical_unit: MVA
+  transformer_banks_mva:
+    type: array
+    canonical_unit: MVA
+  heat_pump_transformer_banks_mva:
+    type: array
+    canonical_unit: MVA
+  heater_modules_mw:
+    type: array
+    canonical_unit: MW
+  heat_pump_modules_mw:
+    type: array
+    canonical_unit: MW
+  heater_unit_price_wanke_per_mw:
+    type: float
+    canonical_unit: 万元/MW
+  salt_unit_price_wanke_per_t:
+    type: float
+    canonical_unit: 万元/t
+  sgs_unit_price_wanke_per_mw:
+    type: float
+    canonical_unit: 万元/MW
+  heat_pump_unit_price_wanke_per_mw:
+    type: float
+    canonical_unit: 万元/MW
+  cost_electric_heater_wanke:
+    type: float
+    canonical_unit: 万元
+  cost_storage_system_wanke:
+    type: float
+    canonical_unit: 万元
+  cost_heat_exchange_wanke:
+    type: float
+    canonical_unit: 万元
+  cost_electrical_system_wanke:
+    type: float
+    canonical_unit: 万元
+  cost_heat_pump_wanke:
+    type: float
+    canonical_unit: 万元
+  heat_pump_cost_heat_exchange_wanke:
+    type: float
+    canonical_unit: 万元
+  heat_pump_cost_electrical_system_wanke:
+    type: float
+    canonical_unit: 万元
+  equipment_investment_wanke:
+    type: float
+    canonical_unit: 万元
+  heat_pump_equipment_investment_wanke:
+    type: float
+    canonical_unit: 万元
+  static_investment_wanke:
+    type: float
+    canonical_unit: 万元
+  construction_and_reserve_wanke:
+    type: float
+    canonical_unit: 万元
+  dynamic_investment_wanke:
+    type: float
+    canonical_unit: 万元
+  heat_pump_static_investment_wanke:
+    type: float
+    canonical_unit: 万元
+  heat_pump_construction_and_reserve_wanke:
+    type: float
+    canonical_unit: 万元
+  heat_pump_dynamic_investment_wanke:
+    type: float
+    canonical_unit: 万元
+  project_estimate_rows:
+    type: object
+    canonical_unit: 万元; row20=/
+  auxiliary_system_wanke:
+    type: float
+    canonical_unit: 万元
+  construction_cost_wanke:
+    type: float
+    canonical_unit: 万元
+  equipment_purchase_wanke:
+    type: float
+    canonical_unit: 万元
+  installation_cost_wanke:
+    type: float
+    canonical_unit: 万元
+  other_fees_wanke:
+    type: float
+    canonical_unit: 万元
+  basic_reserve_wanke:
+    type: float
+    canonical_unit: 万元
+  deductible_vat_wanke:
+    type: float
+    canonical_unit: 万元
+  fixed_assets_wanke:
+    type: float
+    canonical_unit: 万元
+  estimate_static_investment_wanke:
+    type: float
+    canonical_unit: 万元
+  estimate_balance_residual_wanke:
+    type: float
+    canonical_unit: 万元
+  heat_pump_project_estimate_rows:
+    type: object
+    canonical_unit: 万元; row20=/
+  heat_pump_auxiliary_system_wanke:
+    type: float
+    canonical_unit: 万元
+  heat_pump_construction_cost_wanke:
+    type: float
+    canonical_unit: 万元
+  heat_pump_equipment_purchase_wanke:
+    type: float
+    canonical_unit: 万元
+  heat_pump_installation_cost_wanke:
+    type: float
+    canonical_unit: 万元
+  heat_pump_other_fees_wanke:
+    type: float
+    canonical_unit: 万元
+  heat_pump_basic_reserve_wanke:
+    type: float
+    canonical_unit: 万元
+  heat_pump_deductible_vat_wanke:
+    type: float
+    canonical_unit: 万元
+  heat_pump_fixed_assets_wanke:
+    type: float
+    canonical_unit: 万元
+  heat_pump_estimate_static_investment_wanke:
+    type: float
+    canonical_unit: 万元
+  heat_pump_estimate_balance_residual_wanke:
+    type: float
+    canonical_unit: 万元

@@ -19,9 +19,17 @@
       "transformer_capacity_mva": 90.0,
       "equipment_investment_wanke": 17320.0,
       "static_investment_wanke": 21650.0,
-      "dynamic_investment_wanke": 22650.0
+      "dynamic_investment_wanke": 22650.0,
+      "sgs_power_nominal_mw": 76,
+      "sgs_catalog_power_mw": 80,
+      "heat_pump_power_nominal_mw": 80,
+      "heat_pump_equipment_investment_wanke": 21640,
+      "heat_pump_static_investment_wanke": 27050,
+      "heat_pump_dynamic_investment_wanke": 28050,
+      "deductible_vat_wanke": 2126.97406423562,
+      "fixed_assets_wanke": 20523.02593576438
     },
-    "tolerance": 0.02
+    "tolerance": 1e-10
   },
   {
     "case_id": "molten_salt_steam_inverse_budget",
@@ -33,6 +41,97 @@
       "steam_temperature_c": 200.0,
       "target_dynamic_investment_wanke": 22650.0
     },
-    "expected_range": [95.0, 105.0]
+    "expected_range": [
+      95.0,
+      105.0
+    ]
+  },
+  {
+    "case_id": "molten_salt_steam_unequal_hours",
+    "description": "10h供汽/8h谷电，跨熔盐万吨阶梯",
+    "mode": "FORWARD",
+    "inputs": {
+      "steam_pressure_mpa": 1.5,
+      "steam_temperature_c": 200,
+      "steam_flow_th": 100,
+      "steam_supply_hours_h": 10
+    },
+    "expected": {
+      "storage_capacity_mwh": 770,
+      "molten_salt_mass_t": 10740,
+      "heater_power_nominal_mw": 100,
+      "dynamic_investment_wanke": 25642.5,
+      "annual_steam_wan_t": 33,
+      "workbook_heater_annual_steam_wan_t": 26.4
+    },
+    "tolerance": 1e-10
+  },
+  {
+    "case_id": "molten_salt_steam_parallel_transformers",
+    "description": "300t/h，多台变压器及大功率计价",
+    "mode": "FORWARD",
+    "inputs": {
+      "steam_pressure_mpa": 1.5,
+      "steam_temperature_c": 200,
+      "steam_flow_th": 300
+    },
+    "expected": {
+      "transformer_capacity_mva": 240,
+      "heat_pump_transformer_capacity_mva": 210,
+      "molten_salt_mass_t": 25800,
+      "sgs_power_nominal_mw": 227,
+      "dynamic_investment_wanke": 57281.25
+    },
+    "tolerance": 1e-10
+  },
+  {
+    "case_id": "molten_salt_steam_warm_heat_pump",
+    "description": "余热温度等于50度时采用温热源单价",
+    "mode": "FORWARD",
+    "inputs": {
+      "steam_pressure_mpa": 1.5,
+      "steam_temperature_c": 200,
+      "steam_flow_th": 100,
+      "waste_heat_temperature_c": 50
+    },
+    "expected": {
+      "heat_pump_unit_price_wanke_per_mw": 80,
+      "heat_pump_static_investment_wanke": 25650,
+      "heat_pump_dynamic_investment_wanke": 26650
+    },
+    "tolerance": 1e-10
+  },
+  {
+    "case_id": "molten_salt_steam_solar_salt",
+    "description": "太阳盐290至565度、400度供汽",
+    "mode": "FORWARD",
+    "inputs": {
+      "steam_pressure_mpa": 1.5,
+      "steam_temperature_c": 400,
+      "steam_flow_th": 100,
+      "salt_type_id": 1
+    },
+    "expected": {
+      "salt_cp_kj_kg_k": 1.51653,
+      "molten_salt_mass_t": 6840,
+      "storage_capacity_mwh": 720,
+      "dynamic_investment_wanke": 21703.75
+    },
+    "tolerance": 1e-10
+  },
+  {
+    "case_id": "molten_salt_steam_inverse_heat_pump",
+    "description": "热泵动态预算28050万元，反推最大流量并回代校核",
+    "mode": "INVERSE",
+    "target_param": "steam_flow_th",
+    "given": {
+      "steam_pressure_mpa": 1.5,
+      "steam_temperature_c": 200,
+      "target_heat_pump_dynamic_investment_wanke": 28050
+    },
+    "expected_range": [
+      100,
+      102
+    ]
   }
 ]
