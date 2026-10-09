@@ -17,9 +17,12 @@ from scenarios.molten_salt_steam.spec import MoltenSaltSteamSpec
 from skill_api import CalculationSkill
 
 ROOT = Path(__file__).resolve().parents[1]
+TEMPLATE_PATH = next((p for p in [
+    ROOT / "scenarios/molten_salt_steam/templates/输入输出.xlsx",
+    ROOT / "scenarios/molten_salt_steam/输入输出.xlsx",
+    ROOT / "输入输出.xlsx"
+] if p.exists()), ROOT / "scenarios/molten_salt_steam/templates/输入输出.xlsx")
 BASE = {"steam_pressure_mpa": 1.5, "steam_temperature_c": 200.0, "steam_flow_th": 100.0}
-
-
 class TestPhysicalProperties(unittest.TestCase):
     def test_if97_official_verification_points(self) -> None:
         # IF97 release tables 5 and 15: P(MPa), T(K), h(kJ/kg).
@@ -81,7 +84,7 @@ class TestMoltenSaltBusiness(unittest.TestCase):
 
     def test_workbook_exact_discrete_costs_and_complete_estimate(self) -> None:
         result = self.calculate()
-        workbook = openpyxl.load_workbook(ROOT / "输入输出.xlsx", data_only=True)
+        workbook = openpyxl.load_workbook(TEMPLATE_PATH, data_only=True)
         self.addCleanup(workbook.close)
         bindings = {"选型!D2": "heater_power_nominal_mw", "选型!D3": "heat_pump_power_nominal_mw",
                     "选型!D4": "storage_capacity_mwh", "选型!D9": "molten_salt_mass_t",

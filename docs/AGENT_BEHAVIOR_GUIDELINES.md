@@ -11,10 +11,10 @@
 
 | 目录路径 | 读写权限 | 允许放置的文件类型 | 严厉禁止的行为 (Forbidden) |
 | :--- | :--- | :--- | :--- |
-| **根目录 `/`** | **受限** | 仅允许：`README.md`、`design.md`、`skill_api.py`、`输入输出.xlsx`（标杆文件） | **严禁**创建任何临时 `.py`、`.md`、`.txt`、`.json` 或导出文件！ |
+| **根目录 `/`** | **受限** | 仅允许：`README.md`、`design.md`、`skill_api.py`、`requirements.txt`、`.gitignore` | **严禁**创建任何业务数据 `.xlsx`、临时 `.py`、`.md`、`.txt`、`.json` 或导出文件！ |
 | **`docs/`** | **只读 / 架构师专修** | 系统架构文档、PRD、规范说明书、状态机协议 | **严禁**在此存放单次会话临时笔记、调试草稿或场景特定的局部说明。 |
 | **`engine/`** | **核心只读保护区** | 通用 FSM 状态机调度、符号反解抽象、物性适配接口、导出器核心代码 | **严禁**在此处编写任何特定业务/工程场景的计算公式！引擎必须保持 100% 领域无关。 |
-| **`scenarios/<scenario_id>/`** | **业务开发区** | 场景元数据 `manifest.yaml`、方程 `equations.py`、离散规则 `sizing_rules.json`、费率表 `costing_rules.yaml`、测试集 `benchmarks.json`、局部说明 `README.md` | **严禁**在场景目录内引入与该场景无关的通用逻辑，**严禁**修改其他场景目录的文件。 |
+| **`scenarios/<scenario_id>/`** | **业务开发区** | 场景元数据 `manifest.yaml`、方程 `equations.py`、离散规则 `sizing_rules.json`、费率表 `costing_rules.yaml`、测试集 `benchmarks.json`、专用模板 `templates/`、局部说明 `README.md` | **严禁**在场景目录内引入与该场景无关的通用逻辑，**严禁**修改其他场景目录的文件。 |
 | **`subagent_workspace/`** | **子Agent沙盒区** | 子 Agent 迭代、调试、临时草稿、生成补丁中间态 | 正式生效后必须清理临时文件，不能遗留垃圾。 |
 | **`tests/`** | **测试套件区** | 基于 `pytest` 的单元测试、状态机集成测试、金标回归测试 | **严禁**在此存放生产逻辑代码。 |
 | **`exports/`** | **运行时输出区** | 动态生成的 `.xlsx` 计算报表、导出 JSON 结果 | 运行时产物，禁止提交至版本库长期驻留。 |

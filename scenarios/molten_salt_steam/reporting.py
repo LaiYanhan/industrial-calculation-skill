@@ -11,10 +11,22 @@ from scenarios.molten_salt_steam.costing import allocate_cost
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
+def resolve_template_path() -> Path:
+    scenario_dir = Path(__file__).resolve().parent
+    candidates = [
+        scenario_dir / "templates" / "输入输出.xlsx",
+        scenario_dir / "输入输出.xlsx",
+        PROJECT_ROOT / "输入输出.xlsx",
+    ]
+    for p in candidates:
+        if p.exists():
+            return p
+    raise FileNotFoundError("未找到模板文件 输入输出.xlsx，请确认存放于 scenarios/molten_salt_steam/templates/输入输出.xlsx")
+
 
 def export_report(context: ExecutionContext, manifest: dict[str, Any],
                   costing_rules: dict[str, Any]) -> str:
-    template = PROJECT_ROOT / "输入输出.xlsx"
+    template = resolve_template_path()
     # 输出始终位于 exports，调用者只指定文件名，不能写到根目录或覆盖模板。
     output = PROJECT_ROOT / "exports" / f"molten_salt_steam_{context.execution_id}.xlsx"
     result = context.final_output["results"]

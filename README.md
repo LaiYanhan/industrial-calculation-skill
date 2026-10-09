@@ -27,7 +27,6 @@ skills/calculate/
 ├── requirements.txt                   # 项目核心依赖清单
 ├── .venv/                             # [已预装] 项目专属隔离虚拟环境
 ├── skill_api.py                       # 供上层大Skill调用的标准入口类
-├── 输入输出.xlsx                       # 工业熔盐储热工程原始标杆文件
 │
 ├── docs/                              # 核心规范与准则库 (只读区)
 │   ├── ENVIRONMENT_SETUP.md           # 虚拟环境配置与激活指南
@@ -56,8 +55,8 @@ skills/calculate/
 │   ├── base.py                        # 场景抽象基类 (BaseScenarioSpec)
 │   ├── registry.py                    # 场景注册中心 (ScenarioRegistry)
 │   ├── molten_salt_steam/             # 标杆工业场景: 谷电熔盐供汽选型与概算
+│   │   ├── templates/输入输出.xlsx    # [模板与标杆数据] 原始工程 7 表工作簿
 │   │   ├── manifest.yaml              # 场景元数据、参数、边界与别名
-│   │   ├── equations.py               # 连续热力学与能量平衡公式
 │   │   ├── sizing.py / sizing_rules.json  # 设备工程离散选型与阶梯规整
 │   │   ├── costing.py / costing_rules.yaml# 分项设备造价与工程概算费率联动
 │   │   ├── inversion.py               # 预算反解与最大产汽能力平台搜索

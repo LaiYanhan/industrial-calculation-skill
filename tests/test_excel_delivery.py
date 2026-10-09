@@ -18,16 +18,19 @@ from skill_api import CalculationSkill
 from subagent_workspace.ci_runner import run_benchmark_suite
 
 ROOT = Path(__file__).resolve().parents[1]
+TEMPLATE_PATH = next((p for p in [
+    ROOT / "scenarios/molten_salt_steam/templates/输入输出.xlsx",
+    ROOT / "scenarios/molten_salt_steam/输入输出.xlsx",
+    ROOT / "输入输出.xlsx"
+] if p.exists()), ROOT / "scenarios/molten_salt_steam/templates/输入输出.xlsx")
 BASE = {"steam_pressure_mpa": 1.5, "steam_temperature_c": 200, "steam_flow_th": 100}
-
-
 def formula_signature(value: object) -> object:
     return (value.text, value.ref) if isinstance(value, ArrayFormula) else value
 
 
 class TestExcelDelivery(unittest.TestCase):
     def test_all_seven_sheets_formula_style_and_snapshot_preservation(self) -> None:
-        template = ROOT / "输入输出.xlsx"
+        template = TEMPLATE_PATH
         original_hash = hashlib.sha256(template.read_bytes()).hexdigest()
         response = CalculationSkill().calculate("molten_salt_steam", BASE, options={"generate_excel": True})
         self.assertEqual(response["status"], "SUCCESS", response)
