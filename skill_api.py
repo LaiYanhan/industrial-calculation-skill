@@ -86,6 +86,7 @@ class CalculationSkill:
                 "solution_mode": context.solution_mode,
                 "fsm_trace": context.get_trace(),
                 "results": context.final_output.get("results", {}),
+                "warnings": context.final_output.get("audit", {}).get("warnings", []),
                 "artifacts": context.artifacts,
                 "audit": context.final_output.get("audit", {}),
             }

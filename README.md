@@ -8,13 +8,14 @@
 
 ## 目录索引与导航
 
-- 📘 **[系统详细架构设计 (design.md)](./design.md)**：包含全局拓扑图、双环拓扑图、通用状态机规范与多领域落地矩阵。
-- 📋 **[产品需求规格说明书 (docs/PRD.md)](./docs/PRD.md)**：详细功能与非功能性需求、验收标准。
-- 🛑 **[AI Agent 行为准则与防史山红线 (docs/AGENT_BEHAVIOR_GUIDELINES.md)](./docs/AGENT_BEHAVIOR_GUIDELINES.md)**：**所有参与代码编写的 Agent 必须严格阅读并遵守！**
-- 🐍 **[虚拟环境与依赖配置手册 (docs/ENVIRONMENT_SETUP.md)](./docs/ENVIRONMENT_SETUP.md)**：专属独立虚拟环境 `.venv` 激活与无缝调度指南。
-- ⚙️ **[通用状态机流水线协议 (docs/STATE_MACHINE_SPEC.md)](./docs/STATE_MACHINE_SPEC.md)**：S0~S8 各状态详细前置守卫、动作与后置不变量契约。
-- 📦 **[声明式场景包配置规范 (docs/SCENARIO_SCHEMA_SPEC.md)](./docs/SCENARIO_SCHEMA_SPEC.md)**：新增或修改公式时的标准目录与文件格式规范。
+-  **[系统详细架构设计 (design.md)](./design.md)**：包含全局拓扑图、双环拓扑图、通用状态机规范与多领域落地矩阵。
+-  **[产品需求规格说明书 (docs/PRD.md)](./docs/PRD.md)**：详细功能与非功能性需求、验收标准。
+-  **[AI Agent 行为准则与防史山红线 (docs/AGENT_BEHAVIOR_GUIDELINES.md)](./docs/AGENT_BEHAVIOR_GUIDELINES.md)**：**所有参与代码编写的 Agent 必须严格阅读并遵守！**
+-  **[虚拟环境与依赖配置手册 (docs/ENVIRONMENT_SETUP.md)](./docs/ENVIRONMENT_SETUP.md)**：专属独立虚拟环境 `.venv` 激活与无缝调度指南。
+-  **[通用状态机流水线协议 (docs/STATE_MACHINE_SPEC.md)](./docs/STATE_MACHINE_SPEC.md)**：S0~S8 各状态详细前置守卫、动作与后置不变量契约。
+-  **[声明式场景包配置规范 (docs/SCENARIO_SCHEMA_SPEC.md)](./docs/SCENARIO_SCHEMA_SPEC.md)**：新增或修改公式时的标准目录与文件格式规范。
 - 🔌 **[外部接口调用参考 (docs/API_REFERENCE.md)](./docs/API_REFERENCE.md)**：上层大 Skill 调用与错误码参考。
+- ⚠️ **[Excel计算差异与运行时警告规范 (docs/EXCEL_DIFFERENCES_AND_WARNINGS.md)](./docs/EXCEL_DIFFERENCES_AND_WARNINGS.md)**：6项原表差异详细定位、简略描述与超限报错规范。
 ---
 
 ## 目录结构规划

@@ -16,8 +16,8 @@ def ceil_to_step(value: float, step: float, tolerance: float) -> float:
 
 
 def select_transformers(demand_mva: float, standards_mva: Sequence[float],
-                        tolerance: float) -> list[float]:
-    """超过最大档时，多台最大档加一个余量档；绝不截断负载容量。"""
+                        tolerance: float, allow_parallel: bool = True) -> list[float]:
+    """按原表 IFS 逻辑选型；超过最大档 120 MVA 时采用多台最大档加余量档组合。"""
     if demand_mva <= 0 or not math.isfinite(demand_mva):
         raise ValueError("变压器负载必须为正有限数 (MVA)")
     if not standards_mva or any(value <= 0 for value in standards_mva):
@@ -25,14 +25,24 @@ def select_transformers(demand_mva: float, standards_mva: Sequence[float],
     if list(standards_mva) != sorted(set(standards_mva)):
         raise ValueError("变压器型谱必须严格递增")
     maximum_mva = standards_mva[-1]
-    full_count = math.floor(demand_mva / maximum_mva)
-    banks_mva = [float(maximum_mva)] * full_count
-    remainder_mva = demand_mva - full_count * maximum_mva
-    if remainder_mva > tolerance:
-        banks_mva.append(float(next(capacity_mva for capacity_mva in standards_mva
-                                    if capacity_mva + tolerance >= remainder_mva)))
-    return banks_mva
+    if demand_mva > maximum_mva + tolerance:
+        if not allow_parallel:
+            raise ValueError(
+                f"[选型!D11] 变压器计算负荷 {demand_mva:.2f} MVA 超出原表 IFS 公式上限 {maximum_mva} MVA，"
+                f"原表未定义更大容量或组合公式，超出范围严格报错"
+            )
+        full_count = math.floor(demand_mva / maximum_mva)
+        banks_mva = [float(maximum_mva)] * full_count
+        remainder_mva = demand_mva - full_count * maximum_mva
+        if remainder_mva > tolerance:
+            banks_mva.append(float(next(capacity_mva for capacity_mva in standards_mva
+                                        if capacity_mva + tolerance >= remainder_mva)))
+        return banks_mva
 
+    for capacity_mva in standards_mva:
+        if capacity_mva + tolerance >= demand_mva:
+            return [float(capacity_mva)]
+    raise ValueError(f"[选型!D11] 变压器计算负荷 {demand_mva:.2f} MVA 超出原表 IFS 公式上限 {maximum_mva} MVA，超出范围严格报错")
 
 def module_bank(power_mw: float, maximum_mw: float) -> list[float]:
     count = math.floor(power_mw / maximum_mw)
@@ -53,13 +63,15 @@ def size_equipment(continuous: Mapping[str, float], params: Mapping[str, float],
         storage_mwh, continuous["salt_cp_kj_kg_k"], params["salt_temperature_high_c"],
         params["salt_temperature_low_c"], params["salt_mass_margin"])
     transformer = rules["transformer"]
+    allow_parallel = bool(params.get("allow_parallel_transformers", 1))
     heater_banks_mva = select_transformers(
         continuous["heater_power_theoretical_mw"] / transformer["heater_power_factor"],
-        transformer["standards_mva"], tolerance)
+        transformer["standards_mva"], tolerance, allow_parallel=allow_parallel)
     pump_demand_mva = ceil_to_step(
         continuous["heat_pump_electric_power_mw"] / transformer["heat_pump_power_factor"],
         transformer["heat_pump_demand_step_mva"], tolerance)
-    pump_banks_mva = select_transformers(pump_demand_mva, transformer["standards_mva"], tolerance)
+    pump_banks_mva = select_transformers(
+        pump_demand_mva, transformer["standards_mva"], tolerance, allow_parallel=allow_parallel)
     return {
         "heater_power_nominal_mw": heater_mw,
         "heat_pump_power_nominal_mw": pump_mw,

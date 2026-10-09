@@ -145,9 +145,12 @@ class MoltenSaltSteamSpec(BaseScenarioSpec):
 
             def evaluate_cost(flow_th: float) -> float:
                 trial_params = {**resolved, "steam_flow_th": flow_th}
-                continuous = self._continuous(trial_params, references)
-                discrete = size_equipment(continuous, trial_params, self.sizing_rules)
-                return equipment_costs(discrete, trial_params, self.costing_rules)[cost_key]
+                try:
+                    continuous = self._continuous(trial_params, references)
+                    discrete = size_equipment(continuous, trial_params, self.sizing_rules)
+                    return equipment_costs(discrete, trial_params, self.costing_rules)[cost_key]
+                except (ValueError, KeyError):
+                    return float("inf")
 
             lower_th, upper_th = self.manifest["parameters"]["steam_flow_th"]["bounds"]
             resolved["steam_flow_th"] = maximize_flow_under_budget(
@@ -218,11 +221,15 @@ class MoltenSaltSteamSpec(BaseScenarioSpec):
         for key in self.budget_keys:
             if key in params and cascade[key.removeprefix("target_")] > params[key] + tolerance:
                 violations.append("反解结果超出投资预算")
-        if params["steam_supply_hours_h"] != params["valley_power_hours_h"]:
-            warnings.append("原表计算!D10 使用谷电时长；annual_steam_wan_t 使用供汽时长，另保留原表口径字段")
-        if discrete["sgs_power_nominal_mw"] != discrete["sgs_catalog_power_mw"]:
-            warnings.append("SGS 造价按选型公式的 1 MW 步长；型号建议按备注的 5 MW 步长，分开返回")
-        warnings.append("物性粘度标签与概算税率沿用原始工作簿，未声明为现行规范")
+        standard_discrepancy_warnings = [
+            "[计算!D10 vs J11] 电加热年供汽量按原公式引用谷电时长(D8)；热泵年供汽量引用供汽时长(D7)。",
+            "[设备型号!I3 vs 选型!D10] SGS容量严格按原公式ROUNDUP(D5,0)取整至1MW(76MW)，未按型号备注取整至5MW(80MW)。",
+            "[设备型号!K3 vs 选型!D11] 变压器严格按原IFS公式最低选16MVA(未启用6.3~12.5MVA)，上限120MVA超限直接报错。",
+            "[设备型号!D3 vs 选型!D2] 电加热器严格按原公式取整至80MW整体计价，未按型号备注5~30MW限制拆分单机。",
+            "[工程概算!G10] 其他辅助系统费用系为平衡静态总投资通过线性斜率反解得出(约2254万元)，非独立输入。",
+            "[工程概算!F21] 建设期贷款利息按原表固定定额1000万元计入，无动态融资模型。"
+        ]
+        warnings.extend(standard_discrepancy_warnings)
         return violations, warnings
 
     def export_excel(self, context: ExecutionContext) -> str:

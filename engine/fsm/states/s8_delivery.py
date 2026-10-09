@@ -33,7 +33,6 @@ class ReportDeliveryState(BaseState):
         combined_results.update(context.cascade_results)
 
         context.final_output = {
-            "execution_id": context.execution_id,
             "scenario_id": context.scenario_id,
             "solution_mode": context.solution_mode,
             "results": combined_results,
