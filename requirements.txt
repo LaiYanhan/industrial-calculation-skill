@@ -1,0 +1,20 @@
+# 工业智能计算 Skill (Industrial Calculation Engine) 核心依赖包规范
+
+# 1. Excel 报表数据处理与模板引擎 (保留原表格式与公式缓存)
+openpyxl>=3.1.2,<4.0.0
+et_xmlfile>=1.1.0
+
+# 2. 声明式场景配置元数据解析
+PyYAML>=6.0.0,<7.0.0
+
+# 3. 符号代数反解与数学推导
+sympy>=1.13.0,<2.0.0
+mpmath>=1.3.0
+
+# 4. 数值优化与高阶矩阵运算 (推荐安装，支持非线性一维搜索加速)
+scipy>=1.10.0
+numpy>=1.24.0
+
+# 5. 水蒸气国际标准物性查表库 (IAPWS-IF97)
+# 注：本项目已在 engine/properties/vendor/iapws/ 内置离线纯 Python 包，支持免安装即插即用
+iapws>=1.5.4,<2.0.0

@@ -11,10 +11,10 @@
 - 📘 **[系统详细架构设计 (design.md)](./design.md)**：包含全局拓扑图、双环拓扑图、通用状态机规范与多领域落地矩阵。
 - 📋 **[产品需求规格说明书 (docs/PRD.md)](./docs/PRD.md)**：详细功能与非功能性需求、验收标准。
 - 🛑 **[AI Agent 行为准则与防史山红线 (docs/AGENT_BEHAVIOR_GUIDELINES.md)](./docs/AGENT_BEHAVIOR_GUIDELINES.md)**：**所有参与代码编写的 Agent 必须严格阅读并遵守！**
+- 🐍 **[虚拟环境与依赖配置手册 (docs/ENVIRONMENT_SETUP.md)](./docs/ENVIRONMENT_SETUP.md)**：专属独立虚拟环境 `.venv` 激活与无缝调度指南。
 - ⚙️ **[通用状态机流水线协议 (docs/STATE_MACHINE_SPEC.md)](./docs/STATE_MACHINE_SPEC.md)**：S0~S8 各状态详细前置守卫、动作与后置不变量契约。
 - 📦 **[声明式场景包配置规范 (docs/SCENARIO_SCHEMA_SPEC.md)](./docs/SCENARIO_SCHEMA_SPEC.md)**：新增或修改公式时的标准目录与文件格式规范。
 - 🔌 **[外部接口调用参考 (docs/API_REFERENCE.md)](./docs/API_REFERENCE.md)**：上层大 Skill 调用与错误码参考。
-
 ---
 
 ## 目录结构规划
@@ -23,10 +23,13 @@
 skills/calculate/
 ├── design.md                          # 全局架构与详细设计说明书
 ├── README.md                          # 本说明文档
+├── requirements.txt                  # 项目核心依赖清单
+├── .venv/                             # [已预装] 项目专属隔离虚拟环境
 ├── skill_api.py                       # 供上层大Skill调用的标准入口类
 ├── 输入输出.xlsx                      # 工业熔盐储热工程原始标杆文件
 │
 ├── docs/                              # 核心规范与准则库 (只读区)
+│   ├── ENVIRONMENT_SETUP.md           # 虚拟环境配置与激活指南
 │   ├── AGENT_BEHAVIOR_GUIDELINES.md   # [核心红线] AI行为准则与防腐规范
 │   ├── PRD.md                         # 需求规格说明书
 │   ├── STATE_MACHINE_SPEC.md          # 状态机S0-S8协议规范
