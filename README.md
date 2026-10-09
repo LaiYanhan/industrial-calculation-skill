@@ -17,7 +17,7 @@
 -  **[外部接口调用参考 (docs/API_REFERENCE.md)](./docs/API_REFERENCE.md)**：上层大 Skill 调用与错误码参考。
 -  **[大模型工具接入与跨主机交付 (integrations/README.md)](./integrations/README.md)**：原生 Function Calling、MCP stdio、LangChain 适配及目标主机配置生成。
 -  **[Excel计算差异与运行时警告规范 (docs/EXCEL_DIFFERENCES_AND_WARNINGS.md)](./docs/EXCEL_DIFFERENCES_AND_WARNINGS.md)**：6项原表差异详细定位、简略描述与超限报错规范。
-- 🤖 **[AI 新增计算场景与公式扩展操作指南 (docs/AI_SCENARIO_EXTENSION_GUIDE.md)](./docs/AI_SCENARIO_EXTENSION_GUIDE.md)**：AI 自迭代脚手架、编程式建场景与沙盒回归全绿准入指引。
+-  **[AI 新增计算场景与公式扩展操作指南 (docs/AI_SCENARIO_EXTENSION_GUIDE.md)](./docs/AI_SCENARIO_EXTENSION_GUIDE.md)**：AI 自迭代脚手架、编程式建场景与沙盒回归全绿准入指引。
 ---
 
 ## 目录结构规划
