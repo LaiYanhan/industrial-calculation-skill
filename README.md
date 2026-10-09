@@ -15,7 +15,9 @@
 -  **[通用状态机流水线协议 (docs/STATE_MACHINE_SPEC.md)](./docs/STATE_MACHINE_SPEC.md)**：S0~S8 各状态详细前置守卫、动作与后置不变量契约。
 -  **[声明式场景包配置规范 (docs/SCENARIO_SCHEMA_SPEC.md)](./docs/SCENARIO_SCHEMA_SPEC.md)**：新增或修改公式时的标准目录与文件格式规范。
 -  **[外部接口调用参考 (docs/API_REFERENCE.md)](./docs/API_REFERENCE.md)**：上层大 Skill 调用与错误码参考。
+-  **[大模型工具接入与跨主机交付 (integrations/README.md)](./integrations/README.md)**：原生 Function Calling、MCP stdio、LangChain 适配及目标主机配置生成。
 -  **[Excel计算差异与运行时警告规范 (docs/EXCEL_DIFFERENCES_AND_WARNINGS.md)](./docs/EXCEL_DIFFERENCES_AND_WARNINGS.md)**：6项原表差异详细定位、简略描述与超限报错规范。
+- 🤖 **[AI 新增计算场景与公式扩展操作指南 (docs/AI_SCENARIO_EXTENSION_GUIDE.md)](./docs/AI_SCENARIO_EXTENSION_GUIDE.md)**：AI 自迭代脚手架、编程式建场景与沙盒回归全绿准入指引。
 ---
 
 ## 目录结构规划
@@ -27,6 +29,13 @@ skills/calculate/
 ├── requirements.txt                   # 项目核心依赖清单
 ├── .venv/                             # [已预装] 项目专属隔离虚拟环境
 ├── skill_api.py                       # 供上层大Skill调用的标准入口类
+│
+├── integrations/                      # 外部协议适配区；统一调用 skill_api，不包含业务公式
+│   ├── function_calling.py            # 原生函数定义、分发器与 Responses Agent 循环
+│   ├── mcp_server.py                  # 通用 MCP stdio 服务
+│   ├── langchain_tools.py             # 可选 LangChain StructuredTool
+│   ├── configure.py                   # 在目标主机输出配置，不修改客户端
+│   └── package.py                     # 跨主机源码交付包生成器
 │
 ├── docs/                              # 核心规范与准则库 (只读区)
 │   ├── ENVIRONMENT_SETUP.md           # 虚拟环境配置与激活指南

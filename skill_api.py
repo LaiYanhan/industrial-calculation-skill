@@ -40,6 +40,47 @@ class CalculationSkill:
             "required_params": spec.required_params,
         }
 
+    def reload_scenarios(self) -> List[Dict[str, Any]]:
+        """动态重新扫描 scenarios/ 目录，热加载并发现所有新场景"""
+        ScenarioRegistry.reload()
+        return ScenarioRegistry.list_all()
+
+    def validate_scenario(self, scenario_id: str) -> bool:
+        """在沙盒中运行指定场景的金标回归测试套件"""
+        from subagent_workspace.ci_runner import run_benchmark_suite
+        return run_benchmark_suite(scenario_id)
+
+    def create_scenario(
+        self,
+        scenario_id: str,
+        name: str,
+        description: str,
+        parameters: Dict[str, Any],
+        equations_code: str,
+        benchmarks: List[Dict[str, Any]],
+        sizing_rules: Optional[Dict[str, Any]] = None,
+        costing_rules: Optional[Dict[str, Any]] = None,
+        custom_spec_code: Optional[str] = None,
+        auto_test_and_register: bool = True
+    ) -> Dict[str, Any]:
+        """
+        为 AI Agent 提供的标准场景新增/扩展接口.
+        自动生成符合规范的场景包，并自动执行沙盒回归测试，全绿通过后自动热加载生效.
+        """
+        from subagent_workspace.scenario_builder import ScenarioBuilder
+        return ScenarioBuilder.create_scenario_package(
+            scenario_id=scenario_id,
+            name=name,
+            description=description,
+            parameters=parameters,
+            equations_code=equations_code,
+            benchmarks=benchmarks,
+            sizing_rules=sizing_rules,
+            costing_rules=costing_rules,
+            custom_spec_code=custom_spec_code,
+            auto_test_and_register=auto_test_and_register
+        )
+
     def calculate(
         self,
         scenario_id: str,

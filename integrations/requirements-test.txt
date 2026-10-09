@@ -1,0 +1,4 @@
+-r requirements-mcp.txt
+-r requirements-langchain.txt
+-r requirements-native.txt
+jsonschema>=4.23,<5

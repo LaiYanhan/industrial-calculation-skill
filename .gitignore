@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 exports/*.xlsx
+exports/*.zip
 .venv/
 venv/
 env/
