@@ -33,32 +33,47 @@ skills/calculate/
 │   ├── SCENARIO_SCHEMA_SPEC.md        # 声明式场景包规范
 │   └── API_REFERENCE.md               # 外部调用接口文档
 │
-├── engine/                            # 核心计算引擎代码骨架 (核心只读区)
-│   ├── fsm/                           # 确定有限状态机运行时
+├── engine/                            # 核心计算引擎代码 (核心只读区)
+│   ├── fsm/                           # 确定有限状态机运行时 (FSM S0~S8)
 │   │   ├── context.py                 # 执行上下文状态总线 (ExecutionContext)
-│   │   ├── state.py                   # 抽象状态基类与令牌
-│   │   ├── controller.py              # 状态机调度器
+│   │   ├── state.py                   # 抽象状态基类与令牌 (BaseState, StateToken)
+│   │   ├── controller.py              # 状态机调度器 (FSMController)
 │   │   └── states/                    # S0 ~ S8 各阶段状态实现抽象
-│   ├── solver/                        # 符号代数求解与二分逆解抽象
-│   ├── properties/                    # 物性查表 (IAPWS) 与常数库适配器
-│   └── exporter/                      # Excel/JSON/Markdown 导出器
+│   ├── solver/                        # 符号代数求解与二分逆解 (NumericInverter)
+│   ├── properties/                    # 物性查表与常数库适配器
+│   │   ├── iapws_adapter.py           # 水蒸气 IAPWS-IF97 适配器 (优先加载内置离线包)
+│   │   ├── salt_adapter.py            # 熔盐物性多项式计算
+│   │   ├── finance_adapter.py         # 商业基准费率适配器
+│   │   └── vendor/iapws/              # [内置离线物性库] 完整打包的 IAPWS-IF97 查表与计算模块
+│   └── exporter/                      # Excel/JSON/Markdown 多模态导出器
+│       └── excel_exporter.py          # 基于 openpyxl 的七表联动公式保留回填器
 │
 ├── scenarios/                         # 声明式场景仓库 (业务扩展区)
-│   ├── base.py                        # 场景抽象基类
-│   ├── registry.py                    # 场景注册中心
+│   ├── base.py                        # 场景抽象基类 (BaseScenarioSpec)
+│   ├── registry.py                    # 场景注册中心 (ScenarioRegistry)
 │   ├── molten_salt_steam/             # 标杆工业场景: 谷电熔盐供汽选型与概算
+│   │   ├── manifest.yaml              # 场景元数据、参数、边界与别名
+│   │   ├── equations.py               # 连续热力学与能量平衡公式
+│   │   ├── sizing.py / sizing_rules.json  # 设备工程离散选型与阶梯规整
+│   │   ├── costing.py / costing_rules.yaml# 分项设备造价与工程概算费率联动
+│   │   ├── inversion.py               # 预算反解与最大产汽能力平台搜索
+│   │   ├── reporting.py               # Excel 单元格无损映射与公式缓存回填
+│   │   ├── spec.py                    # 场景全生命周期编排与常理审计门禁
+│   │   └── benchmarks.json            # 标杆正反向金标回归测试集
 │   └── financial_profit_model/        # 标杆商业场景: 财务利润与EBITDA测算
 │
 ├── subagent_workspace/                # 子Agent独立沙盒与变更验证工作区
+│   ├── README.md                      # 子Agent开发操作流程
 │   └── ci_runner.py                   # 沙盒回归测试执行器
 │
 ├── tests/                             # 自动化测试套件
 │   ├── test_fsm_pipeline.py           # 状态机流转与防跳步测试
 │   ├── test_solver_inversion.py       # 符号反解测试
-│   └── test_scenario_regression.py    # 场景金标用例回归测试
+│   ├── test_scenario_regression.py    # 场景金标用例全量正反向回归测试
+│   ├── test_excel_delivery.py         # 七表 Excel 格式与公式缓存保留验证
+│   └── test_molten_salt_business.py   # 熔盐工程全流程业务数值深度对齐测试
 │
 └── exports/                           # 运行时动态生成的 Excel 报表落盘区
-```
 
 ---
 
@@ -68,3 +83,18 @@ skills/calculate/
 2. **严禁在 `engine/` 内编写特定业务场景的硬编码逻辑**：核心引擎保持领域无关，具体公式必须声明化；
 3. **计算步骤不可跳跃**：必须按 S0~S8 单步执行并满足前置守卫后才可推进；
 4. **测试门禁**：新场景必须包含 `benchmarks.json`，且在沙盒中通过全量回归测试方可正式发布生效。
+
+---
+
+## 跨环境无缝移植与离线自包含打包说明
+
+为了保证本项目作为子模块能够在各种环境（包括离线内网、独立服务器、或被上层大 Skill 跨目录调用）中即插即用：
+
+1. **绝不硬编码绝对路径**：
+   - 根目录、场景配置、模板文件与输出目录均采用基于当前文件的相对解析：`Path(__file__).resolve()`。
+   - 无论从项目根目录、父级目录还是任意工作目录下通过 `import` 调用 `CalculationSkill`，均能正确读取 `输入输出.xlsx` 模板并将报表安全写入 `exports/`。
+
+2. **相关查表与物性库直接打包就绪**：
+   - 水和水蒸气国际标准热力学计算库（IAPWS-IF97）已完整打包进 `engine/properties/vendor/iapws/` 目录中。
+   - 系统优先加载内置打包的查表库，无需依赖外部网络或全局 `pip install iapws`，解压即用。
+   - 熔盐物性多项式、设备规格型号库、工程造价阶梯单价表均在场景包中离线配置。

@@ -43,7 +43,21 @@ class TestScenarioRegression(unittest.TestCase):
                         tol,
                         f"字段 {k} 偏差超标: 预期 {exp_val}, 实际 {act_val}, 偏差 {diff:.2%}"
                     )
-
+            elif mode == "INVERSE":
+                target_param = case.get("target_param")
+                expected_range = case.get("expected_range", [0, 1e9])
+                given = case.get("given", {})
+                res = self.skill.calculate(
+                    scenario_id=scenario_id,
+                    inputs=given,
+                    targets=[target_param] if target_param else None,
+                    options={"solution_mode": "INVERSE"}
+                )
+                self.assertEqual(res.get("status"), "SUCCESS")
+                actual_val = res.get("results", {}).get(target_param)
+                self.assertIsNotNone(actual_val, f"逆解结果缺少 {target_param}")
+                self.assertGreaterEqual(actual_val, expected_range[0])
+                self.assertLessEqual(actual_val, expected_range[1])
     def test_molten_salt_steam_benchmarks(self):
         """回归测试: 谷电熔盐储热工程场景"""
         self._run_benchmarks_for("molten_salt_steam")

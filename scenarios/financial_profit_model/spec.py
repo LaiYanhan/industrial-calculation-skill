@@ -35,6 +35,18 @@ class FinancialProfitModelSpec(BaseScenarioSpec):
             "sales_volume",
         ]
 
+    def infer_solution_mode(self, params: Dict[str, float], targets: List[str]) -> str:
+        if "target_net_profit_wanke" in params or "sales_volume" in targets:
+            return "INVERSE"
+        return "FORWARD"
+
+    def get_required_parameters(self, params: Dict[str, float], targets: List[str], mode: str) -> List[str]:
+        if mode == "AUTO":
+            mode = self.infer_solution_mode(params, targets)
+        if mode in ("INVERSE", "SEARCH"):
+            return ["unit_price_cny", "target_net_profit_wanke"]
+        return list(self.required_params)
+
     def lookup_references(self, canonical_params: Dict[str, float]) -> Dict[str, Any]:
         # 检索财务常数或基准税率
         tax_rate = canonical_params.get("corporate_tax_rate", 0.25)
@@ -47,22 +59,37 @@ class FinancialProfitModelSpec(BaseScenarioSpec):
         mode: str = "FORWARD"
     ) -> Dict[str, float]:
         price = params.get("unit_price_cny", 100.0)
-        volume = params.get("sales_volume", 10000.0)
         unit_cost = params.get("variable_cost_per_unit_cny", 50.0)
         fixed_cost = params.get("fixed_operating_costs_wanke", 200.0)
         depreciation = params.get("depreciation_wanke", 50.0)
         interest = params.get("interest_expenses_wanke", 20.0)
         tax_rate = references.get("effective_tax_rate", 0.25)
 
-        revenue = eq.calc_revenue_wanke(price, volume)
-        var_cost = eq.calc_variable_cost_total_wanke(unit_cost, volume)
-        gross_profit = eq.calc_gross_profit_wanke(revenue, var_cost)
-        ebitda = eq.calc_ebitda_wanke(gross_profit, fixed_cost)
-        ebit = eq.calc_ebit_wanke(ebitda, depreciation)
-        ebt = eq.calc_ebt_wanke(ebit, interest)
-        net_profit = eq.calc_net_profit_wanke(ebt, tax_rate)
+        if mode in ("INVERSE", "SEARCH") or "target_net_profit_wanke" in params:
+            target_profit = params.get("target_net_profit_wanke", 0.0)
+            ebt = target_profit / (1.0 - tax_rate) if (1.0 - tax_rate) > 0 else target_profit
+            ebit = ebt + interest
+            ebitda = ebit + depreciation
+            gross_profit = ebitda + fixed_cost
+            margin_per_unit = price - unit_cost
+            if margin_per_unit <= 0:
+                raise ValueError("单位毛利必须为正才能反算销量")
+            volume = (gross_profit * 10000.0) / margin_per_unit
+            revenue = eq.calc_revenue_wanke(price, volume)
+            var_cost = eq.calc_variable_cost_total_wanke(unit_cost, volume)
+            net_profit = target_profit
+        else:
+            volume = params.get("sales_volume", 10000.0)
+            revenue = eq.calc_revenue_wanke(price, volume)
+            var_cost = eq.calc_variable_cost_total_wanke(unit_cost, volume)
+            gross_profit = eq.calc_gross_profit_wanke(revenue, var_cost)
+            ebitda = eq.calc_ebitda_wanke(gross_profit, fixed_cost)
+            ebit = eq.calc_ebit_wanke(ebitda, depreciation)
+            ebt = eq.calc_ebt_wanke(ebit, interest)
+            net_profit = eq.calc_net_profit_wanke(ebt, tax_rate)
 
         return {
+            "sales_volume": round(volume, 2),
             "revenue_wanke": round(revenue, 2),
             "variable_cost_total_wanke": round(var_cost, 2),
             "gross_profit_wanke": round(gross_profit, 2),
@@ -77,9 +104,8 @@ class FinancialProfitModelSpec(BaseScenarioSpec):
         continuous_results: Dict[str, float],
         params: Dict[str, float]
     ) -> Dict[str, Any]:
-        # 财务销量整件规整
-        vol = params.get("sales_volume", 0.0)
-        return {"discrete_sales_volume": int(vol)}
+        vol = continuous_results.get("sales_volume", params.get("sales_volume", 0.0))
+        return {"sales_volume": round(vol, 2), "discrete_sales_volume": int(round(vol))}
 
     def cascade_metrics(
         self,

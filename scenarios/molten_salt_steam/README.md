@@ -5,10 +5,13 @@
 
 ## 运行
 
-使用普通 CPython 3.11+（本次验收为 Windows CPython 3.13）。安装声明依赖：
+使用普通 CPython 3.11+（本次验收为 Windows CPython 3.13）。
+> **注意**：水蒸气物性查表库已内置打包在 `engine/properties/vendor/iapws` 中，开箱即用，无需额外在线下载 `iapws`。
+运行前只需确保基础环境依赖就绪：
 
 ```powershell
-py -3.13 -m pip install -r scenarios/molten_salt_steam/requirements.txt
+# 确保安装 openpyxl, PyYAML, sympy (iapws 已内置无需在线安装)
+py -3.13 -m pip install openpyxl PyYAML sympy
 # 当前终端选择已安装依赖的 CPython，避免默认 python 指向 MSYS2。
 $pythonDirectory = Split-Path (py -3.13 -c "import sys; print(sys.executable)")
 $env:PATH = "$pythonDirectory;$env:PATH"
@@ -80,8 +83,7 @@ inverse = skill.calculate(
 5. 原表 F21 建设期利息固定为 1000 万元，没有贷款比例、利率与建设期输入。
    因此 `construction_interest_wanke` 是可覆盖的显式定额，没有虚构融资模型。
    原表 F23 的 1.02 分母与 1.5% 分子分别配置；这些是样例概算口径，不代表现行税法。
-6. 水蒸气使用 [IAPWS-IF97](https://iapws.org/relguide/IF97-Rev.pdf)，缺失依赖时报错，
-   不回退到按温度区分水/蒸汽的粗略线性公式。
+6. 水蒸气使用 [IAPWS-IF97](https://iapws.org/relguide/IF97-Rev.pdf)，物性表代码已直接内置打包在 `engine/properties/vendor/iapws` 中，优先加载内置离线库，禁止经验公式代替 IF97。
    原表使用外部 enthalpy 插件，标准点蒸汽焓与 IF97 相差约 0.032 kJ/kg；
    连续量保持物性计算值，离散选型与全部标杆投资精确一致。
 7. 熔盐相关式逐项来自原工作簿，资料没有附论文/国家标准编号。

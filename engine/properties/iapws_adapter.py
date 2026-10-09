@@ -22,9 +22,12 @@ class WaterSteamPropertyAdapter:
         if quality is not None and (not math.isfinite(quality) or not 0 <= quality <= 1):
             raise ValueError("干度必须位于 [0,1]")
         try:
-            from iapws import IAPWS97
-        except ImportError as exc:
-            raise RuntimeError("缺少 iapws；请安装场景 requirements.txt，禁止经验公式代替 IF97") from exc
+            from engine.properties.vendor.iapws import IAPWS97
+        except ImportError:
+            try:
+                from iapws import IAPWS97
+            except ImportError as exc:
+                raise RuntimeError("缺少 iapws 物性库；请确保已打包 engine/properties/vendor/iapws 或安装 iapws") from exc
         try:
             if quality is not None:
                 state = IAPWS97(P=pressure_mpa, x=quality)
